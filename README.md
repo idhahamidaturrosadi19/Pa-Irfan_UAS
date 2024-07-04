@@ -1,295 +1,87 @@
-##sourcode
+<!DOCTYPE html>
+<html lang="en">
 
-import javax.swing.*;//JFrame, JPanel, JButton
-import java.awt.*;//(layout),(color), font
-import java.awt.event.ActionEvent;//digunakan metode actionPerformed
-import java.awt.event.ActionListener;//such button
-import java.text.SimpleDateFormat;//Memformat objek Date
-import java.util.*;//seperti Date, Calendar, List
-import java.util.List;//untuk membuat daftar yang dinamis
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Me - Pembelian Tiket Travel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="travell.png" rel="icon">
+    <link rel="stylesheet" href="halaman_utama.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <li class="nav-item">
+        <a class="nav-link" href="contact.html">Contact Me</a>
+    </li>
+    
 
-public class TiketTravelApp {
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> { // untuk menghindari masalah threading
-            FormPemesanan formPemesanan = new FormPemesanan(); // jendela utama aplikasi
-            formPemesanan.setVisible(true); // menampilkan form pemesanan kpd pengguna
-        });
-    }
-}
-
-// menerima input pengguna, menampilkan informasi, dan mengelola logika
-class FormPemesanan extends JFrame { // subkelas dari JFrame untuk membuat jendela utama
-    private JTextField namaField; // deklarasi komponen (jadi masuk"in aja)
-    private JTextField teleponField;
-    private JComboBox<String> tujuanComboBox;
-    private JComboBox<String> kelasComboBox;
-    private JSpinner tanggalSpinner;
-    private JSpinner jumlahSpinner;
-    private JTextField voucherField;
-    private JButton tombolPesan;
-    private JButton tombolBayar;
-    private JTextArea areaTiket;
-    private JLabel totalHargaLabel;
-    private int totalHarga = 0; //untuk menyimpan total harga
-
-    private static final String VOUCHER_CODE = "Idha123456";
-    private static final double DISCOUNT_RATE = 0.15;
-    private static final Map<String, Integer> HARGA_TIKET;
-
-    static {
-        HARGA_TIKET = new HashMap<>();
-        HARGA_TIKET.put("Jakarta - Bandung", 150000);
-        HARGA_TIKET.put("Jakarta - Tasikmalaya", 200000);
-        HARGA_TIKET.put("Jakarta - Surabaya", 500000);
-        HARGA_TIKET.put("Jakarta - Yogyakarta", 350000);
-        HARGA_TIKET.put("Jakarta - Semarang", 300000);
-        HARGA_TIKET.put("Bandung - Yogyakarta", 300000);
-        HARGA_TIKET.put("Surabaya - Solo", 150000);
-        HARGA_TIKET.put("Jakarta - Bali", 600000);
-    }
-
-    public FormPemesanan() {
-        setTitle("Pemesanan Tiket Travel"); // judul
-        setSize(600, 700); // ukuran
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // saat keluar apl
-        setLocationRelativeTo(null); // tampilan di tengah
-
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(10, 2)); // tata letak grid 10,2
-
-        // Label dan bidang
-        JLabel namaLabel = new JLabel("Nama:");
-        namaField = new JTextField();
-        JLabel teleponLabel = new JLabel("No. Telepon:");
-        teleponField = new JTextField();
-        JLabel tujuanLabel = new JLabel("Tujuan:");
-        tujuanComboBox = new JComboBox<>(HARGA_TIKET.keySet().toArray(new String[0]));
-        JLabel kelasLabel = new JLabel("Kelas:");
-        String[] kelas = { "Ekonomi", "Bisnis", "VIP" };
-        kelasComboBox = new JComboBox<>(kelas);
-
-        JLabel tanggalLabel = new JLabel("Tanggal Keberangkatan:");
-        SpinnerDateModel dateModel = new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_MONTH);
-        tanggalSpinner = new JSpinner(dateModel);
-        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(tanggalSpinner, "yyyy-MM-dd");
-        tanggalSpinner.setEditor(dateEditor);
-
-        JLabel jumlahLabel = new JLabel("Jumlah Tiket:");
-        jumlahSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
-
-        JLabel voucherLabel = new JLabel("Kode Voucher:");
-        voucherField = new JTextField();
-
-        tombolPesan = new JButton("Pesan Tiket");
-        tombolBayar = new JButton("Bayar");
-        areaTiket = new JTextArea(); // untuk menampilkan informasi tiket yang dipesan
-        areaTiket.setEditable(false);
-        totalHargaLabel = new JLabel("Total Harga: Rp 0"); // mulai dari 0
-
-        // pengelompokan agar lebih mudah teratur
-        panel.add(namaLabel);
-        panel.add(namaField);
-        panel.add(teleponLabel);
-        panel.add(teleponField);
-        panel.add(tujuanLabel);
-        panel.add(tujuanComboBox);
-        panel.add(kelasLabel);
-        panel.add(kelasComboBox);
-        panel.add(tanggalLabel);
-        panel.add(tanggalSpinner);
-        panel.add(jumlahLabel);
-        panel.add(jumlahSpinner);
-        panel.add(voucherLabel);
-        panel.add(voucherField);
-        panel.add(new JLabel());
-        panel.add(tombolPesan);
-        panel.add(new JLabel());
-        panel.add(totalHargaLabel);
-        panel.add(new JLabel());
-        panel.add(tombolBayar);
-
-        add(panel, BorderLayout.CENTER);
-        add(new JScrollPane(areaTiket), BorderLayout.SOUTH);
-
-        // membantu membuat aplikasi lebih interaktif dan responsif terhadap input
-        // pengguna.
-        tombolPesan.addActionListener(new TombolPesanListener());
-        tombolBayar.addActionListener(new TombolBayarListener());
-    }
-
-    // mengambil data dari form, memvalidasi input, menghitung harga tiket,
-    // menyimpan tiket ke database, dan menampilkan informasi tiket di area teks.
-    private class TombolPesanListener implements ActionListener {
-        @Override
-        // data di ambil dari form input di bawah
-        public void actionPerformed(ActionEvent e) {
-            String nama = namaField.getText();
-            String telepon = teleponField.getText();
-            String tujuan = (String) tujuanComboBox.getSelectedItem();
-            String kelas = (String) kelasComboBox.getSelectedItem();
-            Date tanggal = (Date) tanggalSpinner.getValue();
-            int jumlahTiket = (int) jumlahSpinner.getValue();
-            String voucher = voucherField.getText();
-
-            // memastikan agar semua file diisi, kalo belum gabisa lanjut
-            if (nama.isEmpty() || telepon.isEmpty() || tujuan == null || kelas == null || tanggal == null) {
-                JOptionPane.showMessageDialog(FormPemesanan.this, "Silakan masukkan semua informasi.", "Error",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // harga dasarnya diambil dari harga awal, harga akhirnya diambil setelah beres
-            // semua diitung dan jika ada voucher yang valid.
-            int hargaDasar = HARGA_TIKET.get(tujuan);
-            int hargaPerTiket = hitungHargaBerdasarkanKelas(hargaDasar, kelas);
-
-            boolean isVoucherValid = VOUCHER_CODE.equals(voucher);
-            if (isVoucherValid) {
-                hargaPerTiket -= hargaPerTiket * DISCOUNT_RATE;
-            }
-
-            int totalHargaPesanan = hargaPerTiket * jumlahTiket;
-            totalHarga += totalHargaPesanan;
-
-            // semua tiket disimpan di database, lalu lalu ditampilkan di area teks
-            // jika ada voucher valid, maka ditampilkan di area teks juga
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            String tanggalStr = dateFormat.format(tanggal);
-
-            for (int i = 0; i < jumlahTiket; i++) {
-                Tiket tiket = new Tiket(nama, telepon, tujuan, kelas, tanggal, hargaPerTiket);
-                DatabaseTiket.simpanTiket(tiket);
-                areaTiket.append("Tiket dipesan untuk " + nama + " ke " + tujuan + " (Kelas: " + kelas + ", Tanggal: "
-                        + tanggalStr + ", No. Telepon: " + telepon + ") dengan harga Rp" + hargaPerTiket);
-                if (isVoucherValid) {
-                    areaTiket.append(" (diskon 15%)");
-                }
-                areaTiket.append(".\n");
-            }
-            totalHargaLabel.setText("Total Harga: Rp " + totalHarga);
-
-            // Setelah pemesanan berhasil, form direset ke keadaan awal untuk pemesanan
-            // baru.
-            namaField.setText("");
-            teleponField.setText("");
-            tujuanComboBox.setSelectedIndex(0);
-            kelasComboBox.setSelectedIndex(0);
-            tanggalSpinner.setValue(new Date());
-            jumlahSpinner.setValue(1);
-            voucherField.setText("");
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
         }
-
-        // menghitung harga tiket berdasarkan kelas yang dipilih.
-        // parameter -harga dasar -kelas (bisnis, vip)
-        private int hitungHargaBerdasarkanKelas(int hargaDasar, String kelas) {
-            switch (kelas) {
-                case "Bisnis":
-                    return hargaDasar + 80000;
-                case "VIP":
-                    return hargaDasar + 160000;
-                default:
-                    return hargaDasar;
-            }
+        .navbar-brand {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 2rem; 
         }
-    }
-
-    // menangani aksi saat tombol "Bayar" ditekan
-    // jika 0 berarti salah
-    // jika berhasil maka ada tulisan berhasil pembayaran, lalu total harga dll nya
-    // direset dan dikosongkan seperti semula
-    private class TombolBayarListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (totalHarga == 0) {
-                JOptionPane.showMessageDialog(FormPemesanan.this, "Tidak ada tiket yang dipesan.", "Error",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            JOptionPane.showMessageDialog(FormPemesanan.this, "Pembayaran sebesar Rp " + totalHarga + " berhasil.",
-                    "Pembayaran Berhasil", JOptionPane.INFORMATION_MESSAGE);
-            totalHarga = 0;
-            totalHargaLabel.setText("Total Harga: Rp 0");
-            areaTiket.setText("");
-            DatabaseTiket.kosongkanTiket();
+        .navbar-brand img {
+            width: 60px;
+            height: auto;
         }
-    }
-}
+    </style>
+    <script src="https://unpkg.com/feather-icons"></script>
+</head>
 
-// merepresentasikan tiket perjalanan dengan beberapa atribut di bawah
-class Tiket {
-    private String nama;
-    private String telepon;
-    private String tujuan;
-    private String kelas;
-    private Date tanggal;
-    private int harga;
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-pink">
+        <a class="navbar-brand" href="halut.html"> 
+            <img src="travell.png" alt="Travel Logo"> 
+            Tiket <b class="text-white">Travel</b>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span data-feather="menu"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="halut.html">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="contact.html">Contact Me</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
-    public Tiket(String nama, String telepon, String tujuan, String kelas, Date tanggal, int harga) {
-        this.nama = nama;
-        this.telepon = telepon;
-        this.tujuan = tujuan;
-        this.kelas = kelas;
-        this.tanggal = tanggal;
-        this.harga = harga;
-    }
+    <div class="container mt-5">
+        <h1>Contact Me</h1>
+        <footer class="bg-pink text-center text-white mt-5">
+            <div class="container p-4 pb-0">
+                <section class="mb-4">
+                    <a class="btn btn-outline-light btn-floating m-1" href="https://www.facebook.com/Idha%20Hamidatur%20R" role="button"><i class="fab fa-facebook-f"></i></a>
+                    <a class="btn btn-outline-light btn-floating m-1" href="https://www.twitter.com/@hamidaa21000173" role="button"><i class="fab fa-twitter"></i></a>
+                    <a class="btn btn-outline-light btn-floating m-1" href="https://www.youtube.com/@idhahamidaturrosadi506" role="button"><i class="fab fa-youtube"></i></a>
+                    <a class="btn btn-outline-light btn-floating m-1" href="https://www.instagram.com/Idha%20Hamidaturrosadi" role="button"><i class="fab fa-instagram"></i></a>
+                    <a class="btn btn-outline-light btn-floating m-1" href="https://wa.me/085813407725" role="button"><i class="fab fa-whatsapp"></i></a>
+                </section>
+            </div>
+            <div class="text-center p-3">
+                © 2024 Pembelian Tiket Travel
+            </div>
+        </footer>
+    </div>
 
-    // METODE GETTER
-    // untuk mengembalikan nilai dari atribut-atribut private dalam sebuah kelas.
-    public String getNama() {
-        return nama;
-    }
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="halaman_utama.js"></script>
+    <script>
+        feather.replace();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
 
-    public String getTelepon() {
-        return telepon;
-    }
-
-    public String getTujuan() {
-        return tujuan;
-    }
-
-    public String getKelas() {
-        return kelas;
-    }
-
-    public Date getTanggal() {
-        return tanggal;
-    }
-
-    public int getHarga() {
-        return harga;
-    }
-}
-
-// untuk menyimpan dan mengelola daftar objek Tiket yang telah dibuat
-class DatabaseTiket {
-    private static List<Tiket> tiketList = new ArrayList<>();
-
-    // untuk menambahkan objek Tiket baru ke dalam tiketList
-    public static void simpanTiket(Tiket tiket) {
-        tiketList.add(tiket);
-    }
-
-    // mengakses semua objek Tiket yang tersimpan tanpa mengubah struktur internal
-    // tiketList
-    public static List<Tiket> getTiket() {
-        return new ArrayList<>(tiketList);
-    }
-
-    // untuk menghapus semua objek Tiket yang tersimpan di dalam tiketList
-    public static void kosongkanTiket() {
-        tiketList.clear();
-    }
-}
-
-##output
-
-![image](https://github.com/idhahamidaturrosadi19/Pa-Irfan_UAS/assets/144808574/d12c30ba-b24b-4329-99db-8cced974bd72)
-![image](https://github.com/idhahamidaturrosadi19/Pa-Irfan_UAS/assets/144808574/0a1a30e4-b4d5-42ec-b05b-5075b4c87f64)
-![image](https://github.com/idhahamidaturrosadi19/Pa-Irfan_UAS/assets/144808574/5567fc5d-f737-4380-b4b4-9ab25c866abb)
-![image](https://github.com/idhahamidaturrosadi19/Pa-Irfan_UAS/assets/144808574/8d4d04f1-2074-4d37-b1a2-b97317d74eb2)
-![image](https://github.com/idhahamidaturrosadi19/Pa-Irfan_UAS/assets/144808574/3549b9d5-16e5-464f-b16f-3136fb0ad0b9)
+</html>
 
 
-
-
+![image](https://github.com/idhahamidaturrosadi19/Pa-Irfan_UAS/assets/144808574/2228700b-8e71-4415-a708-482defc3aa14)
